@@ -1,0 +1,16 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Zero CMS component "Banner" (etc/zero_cms/components.json): renders the
+ * banner the same way as its widget does.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ */
+$values = (array) $block->getData('values');
+?>
+<?= $block->getLayout()
+    ->createBlock(\Zero\Banner\Block\Widget\Banner::class)
+    ->setData('banner_id', (int) ($values['banner_id'] ?? 0))
+    ->toHtml() ?>

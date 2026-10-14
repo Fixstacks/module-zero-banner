@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+
+    Banners with slides (Content → Banners), placed with the "Zero Banner"
+    widget: CSS scroll-snap carousel, server-cropped responsive images (WebP),
+    instead of Page Builder's JS-heavy slider.
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+    <module name="Zero_Banner" setup_version="1.0.0">
+        <sequence>
+            <module name="Magento_Backend"/>
+            <module name="Magento_Cms"/>
+            <module name="Magento_Catalog"/>
+            <module name="Magento_MediaStorage"/>
+            <module name="Magento_Store"/>
+            <module name="Magento_Widget"/>
+            <module name="Magento_Theme"/>
+        </sequence>
+    </module>
+</config>

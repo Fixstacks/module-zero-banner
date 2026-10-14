@@ -1,0 +1,205 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * A banner: a CSS scroll-snap track (native swipe, no JS needed to browse)
+ * with optional prev/next, dots and autoplay wired up by the small script at
+ * the end.
+ *
+ * - Images are <picture>s cropped to the banner's aspect ratio on the server,
+ *   WebP first when available, with an optional mobile source below 48rem.
+ *   width/height plus CSS aspect-ratio reserve the space: no layout shift.
+ * - "Above the fold" banners load the first image eagerly with
+ *   fetchpriority=high (it's usually the page's LCP element); everything else
+ *   is lazy.
+ * - Per slide: "fill the frame" (cropped on the server around the focal
+ *   point; object-position repeats it for when min-height makes the box
+ *   taller) or "show the whole image" (object-contain on a neutral ground);
+ *   text left/center/right, over a gradient that darkens that side.
+ * - Full width cancels .page-main's padding-inline (1rem, 2rem from md).
+ * - Arrows: desktop only (phones swipe; on a narrow slide they'd cover the
+ *   text), shown on hover and keyboard focus. They center via `.zero-hero-nav`
+ *   (transform), not Tailwind's -translate-y-1/2, which DaisyUI's .btn:active
+ *   overrides.
+ *
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Zero\Banner\Block\Widget\Banner $block
+ */
+
+/** Literal classes per ratio, so Tailwind compiles them (see Model\Source\AspectRatio). */
+$ratioClasses = [
+    '3:1' => ['aspect-[3/1]', 'md:aspect-[3/1]'],
+    '5:2' => ['aspect-[5/2]', 'md:aspect-[5/2]'],
+    '2:1' => ['aspect-[2/1]', 'md:aspect-[2/1]'],
+    '16:9' => ['aspect-[16/9]', 'md:aspect-[16/9]'],
+    '3:2' => ['aspect-[3/2]', 'md:aspect-[3/2]'],
+    '4:3' => ['aspect-[4/3]', 'md:aspect-[4/3]'],
+    '1:1' => ['aspect-square', 'md:aspect-square'],
+    '4:5' => ['aspect-[4/5]', 'md:aspect-[4/5]'],
+    '2:3' => ['aspect-[2/3]', 'md:aspect-[2/3]'],
+    '9:16' => ['aspect-[9/16]', 'md:aspect-[9/16]'],
+];
+
+$banner = $block->getBanner();
+$slides = $block->getSlides();
+$count = count($slides);
+$uid = 'zero-banner-' . (int) $banner->getId();
+
+$desktopRatio = $ratioClasses[$banner->getAspectRatio()] ?? $ratioClasses['16:9'];
+$mobileRatio = $ratioClasses[(string) $banner->getAspectRatioMobile()] ?? null;
+$aspectClass = $mobileRatio ? $mobileRatio[0] . ' ' . $desktopRatio[1] : $desktopRatio[0];
+$isFull = $banner->getWidthMode() === \Zero\Banner\Model\Banner::WIDTH_FULL;
+$isAboveFold = (bool) $banner->getIsAboveFold();
+$autoplay = $count > 1 && $banner->getAutoplay() ? max(3, (int) $banner->getAutoplayInterval()) : 0;
+/** Literal classes per slide setting (Tailwind must see them; see Model\Source\*). */
+$objectPositions = [
+    'center' => 'object-center', 'top' => 'object-top', 'bottom' => 'object-bottom',
+    'left' => 'object-left', 'right' => 'object-right',
+];
+$contentLayouts = [
+    // [alignment over a photo + its gradient, alignment without a photo];
+    // left/right are the reading start/end, so right-to-left pages mirror them
+    'left' => [
+        'items-start text-start bg-gradient-to-r rtl:bg-gradient-to-l from-black/50 via-black/15 to-transparent',
+        'items-start text-start',
+    ],
+    'center' => ['items-center text-center bg-black/35', 'items-center text-center'],
+    'right' => [
+        'items-end text-end bg-gradient-to-l rtl:bg-gradient-to-r from-black/50 via-black/15 to-transparent',
+        'items-end text-end',
+    ],
+];
+$arrow = '<svg class="rtl:-scale-x-100 w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>';
+?>
+<section id="<?= $escaper->escapeHtmlAttr($uid) ?>"
+         data-zero-banner
+         data-autoplay="<?= (int) $autoplay ?>"
+         class="zero-banner relative group <?= $isFull ? '-mx-4 md:-mx-8' : '' ?>"
+         aria-roledescription="<?= $escaper->escapeHtmlAttr(__('carousel')) ?>"
+         aria-label="<?= $escaper->escapeHtmlAttr($banner->getName()) ?>">
+    <div class="zero-banner-carousel-track flex overflow-x-auto snap-x snap-mandatory scroll-smooth" data-track>
+        <?php foreach ($slides as $i => $slide): ?>
+            <?php
+            $picture = $block->getPicture($slide);
+            $hasText = $slide->getEyebrow() || $slide->getHeading() || $slide->getText() || $slide->getButtonText();
+            $eager = $isAboveFold && $i === 0;
+            $contain = $slide->getData('image_fit') === 'contain';
+            $objectPosition = $objectPositions[(string) $slide->getData('image_position')] ?? 'object-center';
+            $layout = $contentLayouts[(string) $slide->getData('content_position')] ?? $contentLayouts['left'];
+            ?>
+            <div class="zero-banner-slide relative w-full shrink-0 snap-start <?= /* @noEscape */ $aspectClass ?>
+                        <?= $hasText ? 'min-h-[20rem]' : '' ?> <?= !$picture ? 'bg-base-100' : ($contain ? 'bg-base-200' : '') ?>"
+                 role="group" aria-roledescription="<?= $escaper->escapeHtmlAttr(__('slide')) ?>"
+                 aria-label="<?= $escaper->escapeHtmlAttr(__('%1 of %2', $i + 1, $count)) ?>">
+                <?php if ($slide->getLinkUrl()): ?>
+                    <a href="<?= $escaper->escapeUrl($slide->getLinkUrl()) ?>" class="absolute inset-0 block">
+                <?php else: ?>
+                    <div class="absolute inset-0">
+                <?php endif; ?>
+                    <?php if ($picture): ?>
+                        <picture>
+                            <?php if ($picture['mobile']): ?>
+                                <?php if ($picture['mobile']['webp_srcset']): ?>
+                                    <source type="image/webp" media="<?= /* @noEscape */ \Zero\Banner\Model\SlidePicture::MOBILE_MEDIA ?>"
+                                            srcset="<?= $escaper->escapeHtmlAttr($picture['mobile']['webp_srcset']) ?>"
+                                            sizes="<?= $escaper->escapeHtmlAttr($picture['mobile']['sizes']) ?>"
+                                            width="<?= (int) $picture['mobile']['width'] ?>" height="<?= (int) $picture['mobile']['height'] ?>">
+                                <?php endif; ?>
+                                <source media="<?= /* @noEscape */ \Zero\Banner\Model\SlidePicture::MOBILE_MEDIA ?>"
+                                        srcset="<?= $escaper->escapeHtmlAttr($picture['mobile']['srcset']) ?>"
+                                        sizes="<?= $escaper->escapeHtmlAttr($picture['mobile']['sizes']) ?>"
+                                        width="<?= (int) $picture['mobile']['width'] ?>" height="<?= (int) $picture['mobile']['height'] ?>">
+                            <?php endif; ?>
+                            <?php if ($picture['webp_srcset']): ?>
+                                <source type="image/webp"
+                                        srcset="<?= $escaper->escapeHtmlAttr($picture['webp_srcset']) ?>"
+                                        sizes="<?= $escaper->escapeHtmlAttr($picture['sizes']) ?>">
+                            <?php endif; ?>
+                            <img src="<?= $escaper->escapeUrl($picture['src']) ?>"
+                                 srcset="<?= $escaper->escapeHtmlAttr($picture['srcset']) ?>"
+                                 sizes="<?= $escaper->escapeHtmlAttr($picture['sizes']) ?>"
+                                 width="<?= (int) $picture['width'] ?>" height="<?= (int) $picture['height'] ?>"
+                                 alt="<?= $escaper->escapeHtmlAttr((string) $slide->getAlt()) ?>"
+                                 class="absolute inset-0 w-full h-full <?= /* @noEscape */ $contain ? 'object-contain' : 'object-cover ' . $objectPosition ?>"
+                                 loading="<?= $eager ? 'eager' : 'lazy' ?>"
+                                 <?= $eager ? 'fetchpriority="high"' : 'decoding="async"' ?>>
+                        </picture>
+                    <?php endif; ?>
+                    <?php if ($hasText): ?>
+                        <div class="absolute inset-0 flex flex-col gap-3 px-8 sm:px-16
+                                    justify-center <?= /* @noEscape */ $picture ? $layout[0] . ' text-white' : $layout[1] . ' text-base-content' ?>">
+                            <?php if ($slide->getEyebrow() || ($banner->getShowNumbers() && $count > 1)): ?>
+                                <span class="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">
+                                    <?php if ($banner->getShowNumbers() && $count > 1): ?>
+                                        <?= $escaper->escapeHtml(sprintf('%02d / %02d', $i + 1, $count)) ?>
+                                    <?php endif; ?>
+                                    <?= $escaper->escapeHtml((string) $slide->getEyebrow()) ?>
+                                </span>
+                            <?php endif; ?>
+                            <?php if ($slide->getHeading()): ?>
+                                <h2 class="font-display text-4xl sm:text-6xl leading-tight text-balance <?= $picture ? 'max-w-md' : 'max-w-2xl' ?>">
+                                    <?= $escaper->escapeHtml($slide->getHeading()) ?>
+                                </h2>
+                            <?php endif; ?>
+                            <?php if ($slide->getText()): ?>
+                                <p class="text-sm sm:text-base max-w-md opacity-90">
+                                    <?= $escaper->escapeHtml($slide->getText()) ?>
+                                </p>
+                            <?php endif; ?>
+                            <?php if ($slide->getButtonText()): ?>
+                                <span class="zero-hero-cta inline-flex items-center gap-1.5 text-xs sm:text-sm
+                                             font-semibold uppercase tracking-widest text-primary border-b
+                                             border-primary pb-0.5 mt-1">
+                                    <?= $escaper->escapeHtml($slide->getButtonText()) ?>
+                                    <?= /* @noEscape */ $arrow ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
+                <?php if ($slide->getLinkUrl()): ?>
+                    </a>
+                <?php else: ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+
+    <?php if ($count > 1): ?>
+        <?php if ($banner->getShowArrows()): ?>
+            <button type="button" data-prev
+                    class="btn btn-circle btn-sm zero-hero-nav absolute start-3 top-1/2 transition-opacity
+                           hidden md:inline-flex md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100"
+                    aria-controls="<?= $escaper->escapeHtmlAttr($uid) ?>"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Previous slide')) ?>">&lsaquo;</button>
+            <button type="button" data-next
+                    class="btn btn-circle btn-sm zero-hero-nav absolute end-3 top-1/2 transition-opacity
+                           hidden md:inline-flex md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100"
+                    aria-controls="<?= $escaper->escapeHtmlAttr($uid) ?>"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Next slide')) ?>">&rsaquo;</button>
+        <?php endif; ?>
+        <?php if ($banner->getShowDots() || $autoplay): ?>
+            <div class="flex items-center justify-center mt-3">
+                <?php if ($autoplay): ?>
+                    <button type="button" data-pause class="zero-banner-pause flex items-center justify-center w-6 h-6 me-1 text-base-content/60 hover:text-primary"
+                            aria-label="<?= $escaper->escapeHtmlAttr(__('Pause slideshow')) ?>"
+                            data-label-play="<?= $escaper->escapeHtmlAttr(__('Play slideshow')) ?>"
+                            data-label-pause="<?= $escaper->escapeHtmlAttr(__('Pause slideshow')) ?>">
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path data-icon-pause d="M6 4h4v16H6zM14 4h4v16h-4z"/><path data-icon-play d="M7 4v16l13-8z" hidden/></svg>
+                    </button>
+                <?php endif; ?>
+                <?php if ($banner->getShowDots()): ?>
+                    <?php foreach ($slides as $i => $slide): ?>
+                        <button type="button" data-dot class="group/dot flex items-center justify-center w-6 h-6"
+                                aria-current="<?= $i === 0 ? 'true' : 'false' ?>"
+                                aria-label="<?= $escaper->escapeHtmlAttr(__('Go to slide %1', $i + 1)) ?>">
+                            <span class="w-2 h-2 rounded-full bg-base-300 group-hover/dot:bg-primary group-aria-[current=true]/dot:bg-primary transition-colors" aria-hidden="true"></span>
+                        </button>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+        <script src="<?= $escaper->escapeUrl($block->getViewFileUrl('Zero_Banner::js/banner.js')) ?>" defer></script>
+    <?php endif; ?>
+</section>

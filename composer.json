@@ -1,0 +1,46 @@
+{
+    "name": "vilmate/module-zero-banner",
+    "description": "Zero for Magento Open Source: banners and sliders managed in the admin, rendered without JavaScript (CSS scroll snap).",
+    "type": "magento2-module",
+    "version": "1.0.0",
+    "license": [
+        "OSL-3.0",
+        "AFL-3.0"
+    ],
+    "authors": [
+        {
+            "name": "Roman Pasichnyk"
+        }
+    ],
+    "homepage": "https://zero.fixstacks.com",
+    "keywords": [
+        "magento",
+        "magento2",
+        "magento-open-source",
+        "zero",
+        "banner",
+        "slider",
+        "carousel"
+    ],
+    "require": {
+        "php": "~8.2.0||~8.3.0||~8.4.0",
+        "magento/framework": "103.0.*",
+        "magento/module-backend": "*",
+        "magento/module-catalog": "*",
+        "magento/module-cms": "*",
+        "magento/module-config": "*",
+        "magento/module-media-storage": "*",
+        "magento/module-store": "*",
+        "magento/module-theme": "*",
+        "magento/module-ui": "*",
+        "magento/module-widget": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Zero\\Banner\\": ""
+        }
+    }
+}

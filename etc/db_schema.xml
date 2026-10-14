@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <!-- A banner: display settings; its slides are in zero_banner_slide. Placed with a widget. -->
+    <table name="zero_banner_entity" resource="default" engine="innodb" comment="Zero Banner">
+        <column xsi:type="int" name="banner_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Banner ID"/>
+        <column xsi:type="varchar" name="name" nullable="false" length="255" comment="Name"/>
+        <column xsi:type="varchar" name="identifier" nullable="false" length="100" comment="Identifier"/>
+        <column xsi:type="smallint" name="is_active" padding="5" unsigned="true" nullable="false" identity="false"
+                default="1" comment="Is Active"/>
+        <column xsi:type="varchar" name="aspect_ratio" nullable="false" length="10" default="16:9"
+                comment="Aspect Ratio (desktop)"/>
+        <column xsi:type="varchar" name="aspect_ratio_mobile" nullable="true" length="10"
+                comment="Aspect Ratio (mobile), empty = same as desktop"/>
+        <column xsi:type="varchar" name="width_mode" nullable="false" length="20" default="contained"
+                comment="contained or full"/>
+        <column xsi:type="smallint" name="is_above_fold" padding="5" unsigned="true" nullable="false"
+                identity="false" default="0" comment="First image loads eagerly with high priority"/>
+        <column xsi:type="smallint" name="show_arrows" padding="5" unsigned="true" nullable="false"
+                identity="false" default="1" comment="Show Arrows"/>
+        <column xsi:type="smallint" name="show_dots" padding="5" unsigned="true" nullable="false"
+                identity="false" default="1" comment="Show Dots"/>
+        <column xsi:type="smallint" name="show_numbers" padding="5" unsigned="true" nullable="false"
+                identity="false" default="0" comment="Show 01 / 03 before the eyebrow"/>
+        <column xsi:type="smallint" name="autoplay" padding="5" unsigned="true" nullable="false"
+                identity="false" default="0" comment="Autoplay"/>
+        <column xsi:type="smallint" name="autoplay_interval" padding="5" unsigned="true" nullable="false"
+                identity="false" default="6" comment="Autoplay Interval (seconds)"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="banner_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="ZERO_BANNER_ENTITY_IDENTIFIER">
+            <column name="identifier"/>
+        </constraint>
+    </table>
+    <!-- Banner ↔ store, same shape as cms_block_store (store_id 0 = All Store Views). -->
+    <table name="zero_banner_entity_store" resource="default" engine="innodb" comment="Zero Banner To Store">
+        <column xsi:type="int" name="banner_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Banner ID"/>
+        <column xsi:type="smallint" name="store_id" padding="5" unsigned="true" nullable="false" identity="false"
+                comment="Store ID"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="banner_id"/>
+            <column name="store_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ZERO_BANNER_ENTITY_STORE_BANNER_ID"
+                    table="zero_banner_entity_store" column="banner_id" referenceTable="zero_banner_entity"
+                    referenceColumn="banner_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="ZERO_BANNER_ENTITY_STORE_STORE_ID"
+                    table="zero_banner_entity_store" column="store_id" referenceTable="store"
+                    referenceColumn="store_id" onDelete="CASCADE"/>
+        <index referenceId="ZERO_BANNER_ENTITY_STORE_STORE_ID" indexType="btree">
+            <column name="store_id"/>
+        </index>
+    </table>
+    <table name="zero_banner_slide" resource="default" engine="innodb" comment="Zero Banner Slide">
+        <column xsi:type="int" name="slide_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Slide ID"/>
+        <column xsi:type="int" name="banner_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Banner ID"/>
+        <column xsi:type="smallint" name="is_active" padding="5" unsigned="true" nullable="false" identity="false"
+                default="1" comment="Is Active"/>
+        <column xsi:type="smallint" name="position" padding="5" unsigned="false" nullable="false" identity="false"
+                default="0" comment="Position"/>
+        <column xsi:type="varchar" name="image" nullable="true" length="255" comment="Image (media path)"/>
+        <column xsi:type="varchar" name="mobile_image" nullable="true" length="255"
+                comment="Mobile Image (media path)"/>
+        <column xsi:type="varchar" name="image_fit" nullable="false" length="10" default="cover"
+                comment="cover (fill the frame, cropped) or contain (whole image)"/>
+        <column xsi:type="varchar" name="image_position" nullable="false" length="10" default="center"
+                comment="Focal point kept when cropping: center, top, bottom, left, right"/>
+        <column xsi:type="varchar" name="content_position" nullable="false" length="10" default="left"
+                comment="Text placement: left, center, right"/>
+        <column xsi:type="varchar" name="alt" nullable="true" length="255" comment="Image Alt Text"/>
+        <column xsi:type="varchar" name="eyebrow" nullable="true" length="255" comment="Eyebrow"/>
+        <column xsi:type="varchar" name="heading" nullable="true" length="255" comment="Heading"/>
+        <column xsi:type="text" name="text" nullable="true" comment="Text"/>
+        <column xsi:type="varchar" name="button_text" nullable="true" length="255" comment="Button Text"/>
+        <column xsi:type="varchar" name="link_url" nullable="true" length="255" comment="Link URL"/>
+        <column xsi:type="date" name="date_from" nullable="true" comment="Show From"/>
+        <column xsi:type="date" name="date_to" nullable="true" comment="Show To"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="slide_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ZERO_BANNER_SLIDE_BANNER_ID"
+                    table="zero_banner_slide" column="banner_id" referenceTable="zero_banner_entity"
+                    referenceColumn="banner_id" onDelete="CASCADE"/>
+        <index referenceId="ZERO_BANNER_SLIDE_BANNER_ID_POSITION" indexType="btree">
+            <column name="banner_id"/>
+            <column name="position"/>
+        </index>
+    </table>
+
+    <!--
+        Legacy (one row per slide, before banners had slides). Copied into the
+        tables above by Setup\Patch\Data\MigrateToBannersWithSlides; drop both
+        tables in a later release.
+    -->
+    <table name="zero_banner" resource="default" engine="innodb" comment="Zero Banner Carousel Slides (legacy)">
+        <column xsi:type="int" name="banner_id" padding="10" unsigned="true" nullable="false" identity="true"
+                comment="Banner ID"/>
+        <column xsi:type="varchar" name="title" nullable="false" length="255" comment="Title"/>
+        <column xsi:type="varchar" name="subtitle" nullable="true" length="255" comment="Subtitle"/>
+        <column xsi:type="varchar" name="image" nullable="true" length="255" comment="Image Path"/>
+        <column xsi:type="varchar" name="link_url" nullable="true" length="255" comment="Link URL"/>
+        <column xsi:type="varchar" name="button_text" nullable="true" length="255" comment="Button Text"/>
+        <column xsi:type="smallint" name="sort_order" padding="5" unsigned="false" nullable="false" identity="false"
+                default="0" comment="Sort Order"/>
+        <column xsi:type="smallint" name="is_active" padding="5" unsigned="false" nullable="false" identity="false"
+                default="1" comment="Is Active"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="banner_id"/>
+        </constraint>
+        <index referenceId="ZERO_BANNER_IS_ACTIVE_SORT_ORDER" indexType="btree">
+            <column name="is_active"/>
+            <column name="sort_order"/>
+        </index>
+    </table>
+    <table name="zero_banner_store" resource="default" engine="innodb"
+           comment="Zero Banner To Store Linkage Table (legacy)">
+        <column xsi:type="int" name="banner_id" padding="10" unsigned="true" nullable="false" identity="false"
+                comment="Banner ID"/>
+        <column xsi:type="smallint" name="store_id" padding="5" unsigned="true" nullable="false" identity="false"
+                comment="Store ID"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="banner_id"/>
+            <column name="store_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="ZERO_BANNER_STORE_BANNER_ID_ZERO_BANNER_BANNER_ID"
+                    table="zero_banner_store" column="banner_id" referenceTable="zero_banner"
+                    referenceColumn="banner_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="ZERO_BANNER_STORE_STORE_ID_STORE_STORE_ID"
+                    table="zero_banner_store" column="store_id" referenceTable="store"
+                    referenceColumn="store_id" onDelete="CASCADE"/>
+        <index referenceId="ZERO_BANNER_STORE_STORE_ID" indexType="btree">
+            <column name="store_id"/>
+        </index>
+    </table>
+</schema>

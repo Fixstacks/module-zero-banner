@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Zero_Banner::banner" title="Banners" module="Zero_Banner" sortOrder="100"
+             parent="Magento_Backend::content" action="zero_banner/banner/index"
+             resource="Zero_Banner::banner"/>
+    </menu>
+</config>

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+
+    "Zero Banner" widget: Content → Widgets → Add Widget → Zero Banner, then
+    pick the banner and where it shows (pages, categories, products,
+    containers) — or insert it into any CMS page/block.
+-->
+<widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
+    <widget id="zero_banner" class="Zero\Banner\Block\Widget\Banner" is_email_compatible="false"
+            placeholder_image="Magento_Widget::placeholder.gif">
+        <label translate="true">Zero Banner</label>
+        <description translate="true">Banner with slides (Content → Banners)</description>
+        <parameters>
+            <parameter name="banner_id" xsi:type="select" required="true" visible="true"
+                       source_model="Zero\Banner\Model\Source\Banners">
+                <label translate="true">Banner</label>
+            </parameter>
+            <parameter name="template" xsi:type="select" required="true" visible="false">
+                <label translate="true">Template</label>
+                <options>
+                    <option name="default" value="Zero_Banner::widget/banner.phtml" selected="true">
+                        <label translate="true">Banner</label>
+                    </option>
+                </options>
+            </parameter>
+        </parameters>
+    </widget>
+</widgets>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="zero_banner" translate="label" sortOrder="20" showInDefault="1">
+            <label>Banners</label>
+            <tab>zero</tab>
+            <resource>Zero_Banner::config</resource>
+            <group id="images" translate="label" sortOrder="10" showInDefault="1">
+                <label>Banner Images</label>
+                <comment><![CDATA[Applies to every banner. Size and aspect ratio are set on each banner (Content → Banners). Changing these regenerates the images on the next page view.]]></comment>
+                <field id="quality" translate="label comment" type="text" sortOrder="10" showInDefault="1">
+                    <label>Image Quality</label>
+                    <comment>40–95. 75–82 is usually indistinguishable from the original at a fraction of the size.</comment>
+                    <validate>required-entry validate-digits validate-digits-range digits-range-40-95</validate>
+                </field>
+                <field id="webp" translate="label comment" type="select" sortOrder="20" showInDefault="1">
+                    <label>Also Serve WebP</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Browsers that support WebP (all current ones) get it, typically 25–35% smaller; the others get JPEG/PNG. Ignored if the server's PHP can't write WebP.</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

@@ -1,0 +1,101 @@
+{
+    "zero_banner": {
+        "column": {
+            "banner_id": true,
+            "title": true,
+            "subtitle": true,
+            "image": true,
+            "link_url": true,
+            "button_text": true,
+            "sort_order": true,
+            "is_active": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "ZERO_BANNER_IS_ACTIVE_SORT_ORDER": true
+        },
+        "constraint": {
+            "PRIMARY": true
+        }
+    },
+    "zero_banner_store": {
+        "column": {
+            "banner_id": true,
+            "store_id": true
+        },
+        "index": {
+            "ZERO_BANNER_STORE_STORE_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "ZERO_BANNER_STORE_BANNER_ID_ZERO_BANNER_BANNER_ID": true,
+            "ZERO_BANNER_STORE_STORE_ID_STORE_STORE_ID": true
+        }
+    },
+    "zero_banner_entity": {
+        "column": {
+            "banner_id": true,
+            "name": true,
+            "identifier": true,
+            "is_active": true,
+            "aspect_ratio": true,
+            "aspect_ratio_mobile": true,
+            "width_mode": true,
+            "is_above_fold": true,
+            "show_arrows": true,
+            "show_dots": true,
+            "show_numbers": true,
+            "autoplay": true,
+            "autoplay_interval": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "ZERO_BANNER_ENTITY_IDENTIFIER": true
+        }
+    },
+    "zero_banner_entity_store": {
+        "column": {
+            "banner_id": true,
+            "store_id": true
+        },
+        "index": {
+            "ZERO_BANNER_ENTITY_STORE_STORE_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "ZERO_BANNER_ENTITY_STORE_BANNER_ID_ZERO_BANNER_ENTITY_BANNER_ID": true,
+            "ZERO_BANNER_ENTITY_STORE_STORE_ID_STORE_STORE_ID": true
+        }
+    },
+    "zero_banner_slide": {
+        "column": {
+            "slide_id": true,
+            "banner_id": true,
+            "is_active": true,
+            "position": true,
+            "image": true,
+            "mobile_image": true,
+            "alt": true,
+            "eyebrow": true,
+            "heading": true,
+            "text": true,
+            "button_text": true,
+            "link_url": true,
+            "date_from": true,
+            "date_to": true,
+            "image_fit": true,
+            "image_position": true,
+            "content_position": true
+        },
+        "index": {
+            "ZERO_BANNER_SLIDE_BANNER_ID_POSITION": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "ZERO_BANNER_SLIDE_BANNER_ID_ZERO_BANNER_ENTITY_BANNER_ID": true
+        }
+    }
+}

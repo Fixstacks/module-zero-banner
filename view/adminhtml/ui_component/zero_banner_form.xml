@@ -1,0 +1,580 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Banner form: settings, then its slides as drag-sortable dynamic rows, each a
+    collapsible fieldset titled by the slide's heading. Save
+    (Controller\Adminhtml\Banner\Save) diffs the posted slides against the
+    stored ones.
+-->
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">zero_banner_form.zero_banner_form_data_source</item>
+        </item>
+        <item name="label" xsi:type="string" translate="true">Banner</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+    <settings>
+        <buttons>
+            <button name="back" class="Zero\Banner\Block\Adminhtml\Banner\Edit\BackButton"/>
+            <button name="delete" class="Zero\Banner\Block\Adminhtml\Banner\Edit\DeleteButton"/>
+            <button name="save" class="Zero\Banner\Block\Adminhtml\Banner\Edit\SaveButton"/>
+        </buttons>
+        <namespace>zero_banner_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>zero_banner_form.zero_banner_form_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="zero_banner_form_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <submitUrl path="zero_banner/banner/save"/>
+        </settings>
+        <dataProvider class="Zero\Banner\Model\Banner\DataProvider" name="zero_banner_form_data_source">
+            <settings>
+                <requestFieldName>banner_id</requestFieldName>
+                <primaryFieldName>banner_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <fieldset name="general" sortOrder="10">
+        <settings>
+            <label/>
+        </settings>
+        <field name="banner_id" formElement="input">
+            <settings>
+                <dataType>text</dataType>
+                <visible>false</visible>
+                <dataScope>banner_id</dataScope>
+            </settings>
+        </field>
+        <field name="is_active" sortOrder="10" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">1</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Enabled</label>
+                <dataScope>is_active</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+        <field name="name" sortOrder="20" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Name</label>
+                <notice translate="true">Shown to screen readers as the carousel's name, and in the widget's banner list.</notice>
+                <dataScope>name</dataScope>
+            </settings>
+        </field>
+        <field name="identifier" sortOrder="30" formElement="input">
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Identifier</label>
+                <notice translate="true">Lowercase letters, digits, - and _. Used in CMS content: {{widget type="Zero\Banner\Block\Widget\Banner" identifier="..."}}</notice>
+                <dataScope>identifier</dataScope>
+            </settings>
+        </field>
+        <field name="store_id" sortOrder="40" formElement="multiselect" class="Magento\Store\Ui\Component\Form\Field\StoreView">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="array">
+                        <item name="0" xsi:type="number">0</item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>int</dataType>
+                <label translate="true">Store View</label>
+                <dataScope>store_id</dataScope>
+            </settings>
+            <formElements>
+                <multiselect>
+                    <settings>
+                        <options class="Zero\Banner\Model\Source\StoreOptions"/>
+                    </settings>
+                </multiselect>
+            </formElements>
+        </field>
+    </fieldset>
+    <fieldset name="display" sortOrder="20">
+        <settings>
+            <label translate="true">Display</label>
+            <collapsible>true</collapsible>
+            <opened>true</opened>
+        </settings>
+        <field name="aspect_ratio" sortOrder="10" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">16:9</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Aspect Ratio</label>
+                <notice translate="true">Images are cropped to it on the server (centered), so no hidden pixels are downloaded.</notice>
+                <dataScope>aspect_ratio</dataScope>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Zero\Banner\Model\Source\AspectRatio"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="aspect_ratio_mobile" sortOrder="20" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string"></item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Aspect Ratio on Phones</label>
+                <notice translate="true">Below 768px. A taller ratio (e.g. 4:5) usually works better on phones; slides without a mobile image are re-cropped from the main one.</notice>
+                <dataScope>aspect_ratio_mobile</dataScope>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Zero\Banner\Model\Source\MobileAspectRatio"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="width_mode" sortOrder="30" formElement="select">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="string">contained</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>text</dataType>
+                <label translate="true">Width</label>
+                <notice translate="true">Sets the image sizes generated. Full width only makes sense in the main content column.</notice>
+                <dataScope>width_mode</dataScope>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Zero\Banner\Model\Source\WidthMode"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="is_above_fold" sortOrder="40" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Shown at the Top of the Page</label>
+                <notice translate="true">The first image is then loaded right away with high priority (best for Largest Contentful Paint). Leave off for banners further down: their images load lazily.</notice>
+                <dataScope>is_above_fold</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+        <field name="show_arrows" sortOrder="50" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">1</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Show Arrows</label>
+                <dataScope>show_arrows</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+        <field name="show_dots" sortOrder="60" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">1</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Show Dots</label>
+                <dataScope>show_dots</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+        <field name="show_numbers" sortOrder="70" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Show Slide Numbers</label>
+                <notice translate="true">Prefixes the eyebrow with "01 / 03".</notice>
+                <dataScope>show_numbers</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+        <field name="autoplay" sortOrder="80" formElement="checkbox">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">0</item>
+                </item>
+            </argument>
+            <settings>
+                <dataType>boolean</dataType>
+                <label translate="true">Autoplay</label>
+                <notice translate="true">Moves to the next slide by itself. Pauses on hover/focus, has a pause button, and stays off for visitors who prefer reduced motion.</notice>
+                <dataScope>autoplay</dataScope>
+            </settings>
+            <formElements>
+                <checkbox>
+                    <settings>
+                        <valueMap>
+                            <map name="false" xsi:type="number">0</map>
+                            <map name="true" xsi:type="number">1</map>
+                        </valueMap>
+                        <prefer>toggle</prefer>
+                    </settings>
+                </checkbox>
+            </formElements>
+        </field>
+        <field name="autoplay_interval" sortOrder="90" formElement="input">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="default" xsi:type="number">6</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="validate-digits" xsi:type="boolean">true</rule>
+                    <rule name="validate-digits-range" xsi:type="string">3-60</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Seconds per Slide</label>
+                <dataScope>autoplay_interval</dataScope>
+                <imports>
+                    <link name="visible">${ $.parentName }.autoplay:checked</link>
+                </imports>
+            </settings>
+        </field>
+    </fieldset>
+    <fieldset name="slides_fieldset" sortOrder="30">
+        <settings>
+            <label translate="true">Slides</label>
+            <collapsible>true</collapsible>
+            <opened>true</opened>
+        </settings>
+        <dynamicRows name="slides">
+            <settings>
+                <addButtonLabel translate="true">Add Slide</addButtonLabel>
+                <additionalClasses>
+                    <class name="admin__field-wide">true</class>
+                </additionalClasses>
+                <dndConfig>
+                    <param name="enabled" xsi:type="boolean">true</param>
+                </dndConfig>
+                <columnsHeader>false</columnsHeader>
+                <recordTemplate>record</recordTemplate>
+            </settings>
+            <container name="record" component="Magento_Ui/js/dynamic-rows/record">
+                <argument name="data" xsi:type="array">
+                    <item name="config" xsi:type="array">
+                        <item name="isTemplate" xsi:type="boolean">true</item>
+                        <item name="is_collection" xsi:type="boolean">true</item>
+                        <item name="headerLabel" xsi:type="string" translate="true">New Slide</item>
+                        <item name="positionProvider" xsi:type="string">slide.position</item>
+                    </item>
+                </argument>
+                <fieldset name="slide" sortOrder="10">
+                    <argument name="data" xsi:type="array">
+                        <item name="config" xsi:type="array">
+                            <item name="imports" xsi:type="array">
+                                <item name="label" xsi:type="string">${ $.name }.heading:value</item>
+                                <item name="__disableTmpl" xsi:type="array">
+                                    <item name="label" xsi:type="boolean">false</item>
+                                </item>
+                            </item>
+                        </item>
+                    </argument>
+                    <settings>
+                        <label translate="true">Slide</label>
+                        <collapsible>true</collapsible>
+                        <opened>true</opened>
+                        <dataScope/>
+                    </settings>
+                        <field name="slide_id" sortOrder="1" formElement="input">
+                            <settings>
+                                <dataType>text</dataType>
+                                <visible>false</visible>
+                                <dataScope>slide_id</dataScope>
+                            </settings>
+                        </field>
+                        <field name="position" sortOrder="2" formElement="input">
+                            <settings>
+                                <dataType>text</dataType>
+                                <visible>false</visible>
+                                <dataScope>position</dataScope>
+                            </settings>
+                        </field>
+                        <field name="is_active" sortOrder="10" formElement="checkbox">
+                            <argument name="data" xsi:type="array">
+                                <item name="config" xsi:type="array">
+                                    <item name="default" xsi:type="number">1</item>
+                                </item>
+                            </argument>
+                            <settings>
+                                <dataType>boolean</dataType>
+                                <label translate="true">Enabled</label>
+                                <dataScope>is_active</dataScope>
+                            </settings>
+                            <formElements>
+                                <checkbox>
+                                    <settings>
+                                        <valueMap>
+                                            <map name="false" xsi:type="number">0</map>
+                                            <map name="true" xsi:type="number">1</map>
+                                        </valueMap>
+                                        <prefer>toggle</prefer>
+                                    </settings>
+                                </checkbox>
+                            </formElements>
+                        </field>
+                        <field name="image" sortOrder="20" formElement="imageUploader">
+                            <settings>
+                                <label translate="true">Image</label>
+                                <notice translate="true">JPG, PNG or GIF (WebP copies are made automatically). Use at least 2000px wide for full-width banners.</notice>
+                                <componentType>imageUploader</componentType>
+                                <dataScope>image</dataScope>
+                            </settings>
+                            <formElements>
+                                <imageUploader>
+                                    <settings>
+                                        <allowedExtensions>jpg jpeg gif png</allowedExtensions>
+                                        <maxFileSize>10485760</maxFileSize>
+                                        <uploaderConfig>
+                                            <param xsi:type="string" name="url">zero_banner/banner/upload</param>
+                                        </uploaderConfig>
+                                        <previewTmpl>Magento_Catalog/image-preview</previewTmpl>
+                                    </settings>
+                                </imageUploader>
+                            </formElements>
+                        </field>
+                        <field name="mobile_image" sortOrder="30" formElement="imageUploader">
+                            <settings>
+                                <label translate="true">Mobile Image</label>
+                                <notice translate="true">Optional. Shown below 768px instead of the main image.</notice>
+                                <componentType>imageUploader</componentType>
+                                <dataScope>mobile_image</dataScope>
+                            </settings>
+                            <formElements>
+                                <imageUploader>
+                                    <settings>
+                                        <allowedExtensions>jpg jpeg gif png</allowedExtensions>
+                                        <maxFileSize>10485760</maxFileSize>
+                                        <uploaderConfig>
+                                            <param xsi:type="string" name="url">zero_banner/banner/upload</param>
+                                        </uploaderConfig>
+                                        <previewTmpl>Magento_Catalog/image-preview</previewTmpl>
+                                    </settings>
+                                </imageUploader>
+                            </formElements>
+                        </field>
+                        <field name="image_fit" sortOrder="32" formElement="select">
+                    <argument name="data" xsi:type="array">
+                        <item name="config" xsi:type="array">
+                            <item name="default" xsi:type="string">cover</item>
+                        </item>
+                    </argument>
+                    <settings>
+                        <dataType>text</dataType>
+                        <label translate="true">Image Fit</label>
+                        <notice translate="true">Fill: the image covers the whole banner, cropped to its aspect ratio. Whole: nothing is cut off; empty space shows around it.</notice>
+                        <dataScope>image_fit</dataScope>
+                    </settings>
+                    <formElements>
+                        <select>
+                            <settings>
+                                <options class="Zero\Banner\Model\Source\ImageFit"/>
+                            </settings>
+                        </select>
+                    </formElements>
+                </field>
+                <field name="image_position" sortOrder="34" formElement="select">
+                    <argument name="data" xsi:type="array">
+                        <item name="config" xsi:type="array">
+                            <item name="default" xsi:type="string">center</item>
+                        </item>
+                    </argument>
+                    <settings>
+                        <dataType>text</dataType>
+                        <label translate="true">Focal Point</label>
+                        <notice translate="true">The part of the image that stays visible when it is cropped.</notice>
+                        <dataScope>image_position</dataScope>
+                    </settings>
+                    <formElements>
+                        <select>
+                            <settings>
+                                <options class="Zero\Banner\Model\Source\ImagePosition"/>
+                            </settings>
+                        </select>
+                    </formElements>
+                </field>
+                <field name="content_position" sortOrder="36" formElement="select">
+                    <argument name="data" xsi:type="array">
+                        <item name="config" xsi:type="array">
+                            <item name="default" xsi:type="string">left</item>
+                        </item>
+                    </argument>
+                    <settings>
+                        <dataType>text</dataType>
+                        <label translate="true">Text Position</label>
+                        <notice translate="true">Where the eyebrow, heading, text and button sit; the image darkens on that side. Mirrored on right-to-left store views.</notice>
+                        <dataScope>content_position</dataScope>
+                    </settings>
+                    <formElements>
+                        <select>
+                            <settings>
+                                <options class="Zero\Banner\Model\Source\ContentPosition"/>
+                            </settings>
+                        </select>
+                    </formElements>
+                </field>
+                <field name="alt" sortOrder="40" formElement="input">
+                            <settings>
+                                <dataType>text</dataType>
+                                <label translate="true">Image Alt Text</label>
+                                <notice translate="true">Describes the image for screen readers and search engines.</notice>
+                                <dataScope>alt</dataScope>
+                            </settings>
+                        </field>
+                        <field name="eyebrow" sortOrder="50" formElement="input">
+                            <settings>
+                                <dataType>text</dataType>
+                                <label translate="true">Eyebrow</label>
+                                <notice translate="true">Small line above the heading.</notice>
+                                <dataScope>eyebrow</dataScope>
+                            </settings>
+                        </field>
+                        <field name="heading" sortOrder="60" formElement="input">
+                            <settings>
+                                <dataType>text</dataType>
+                                <label translate="true">Heading</label>
+                                <dataScope>heading</dataScope>
+                            </settings>
+                        </field>
+                        <field name="text" sortOrder="70" formElement="textarea">
+                            <settings>
+                                <dataType>text</dataType>
+                                <label translate="true">Text</label>
+                                <dataScope>text</dataScope>
+                            </settings>
+                        </field>
+                        <field name="button_text" sortOrder="80" formElement="input">
+                            <settings>
+                                <dataType>text</dataType>
+                                <label translate="true">Button Text</label>
+                                <notice translate="true">Leave empty to make the whole slide a link without a visible button.</notice>
+                                <dataScope>button_text</dataScope>
+                            </settings>
+                        </field>
+                        <field name="link_url" sortOrder="90" formElement="input">
+                            <settings>
+                                <dataType>text</dataType>
+                                <label translate="true">Link URL</label>
+                                <notice translate="true">A path like /women.html or a full URL. Empty = not clickable.</notice>
+                                <dataScope>link_url</dataScope>
+                            </settings>
+                        </field>
+                        <field name="date_from" sortOrder="100" formElement="date">
+                            <settings>
+                                <dataType>text</dataType>
+                                <label translate="true">Show From</label>
+                                <dataScope>date_from</dataScope>
+                            </settings>
+                        </field>
+                        <field name="date_to" sortOrder="110" formElement="date">
+                            <settings>
+                                <dataType>text</dataType>
+                                <label translate="true">Show To</label>
+                                <dataScope>date_to</dataScope>
+                            </settings>
+                        </field>
+                </fieldset>
+                <actionDelete name="action_delete" sortOrder="20">
+                    <settings>
+                        <dataType>text</dataType>
+                        <label/>
+                    </settings>
+                </actionDelete>
+            </container>
+        </dynamicRows>
+    </fieldset>
+</form>

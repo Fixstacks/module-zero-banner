@@ -1,0 +1,10 @@
+{
+    "zero_banner": {
+        "label": "Banner",
+        "description": "A Zero banner (Content > Banners): its slides, arrows and autoplay as configured there.",
+        "template": "Zero_Banner::cms/banner.phtml",
+        "fields": {
+            "banner_id": {"type": "number", "label": "Banner ID (Content > Banners)", "required": true, "min": 1}
+        }
+    }
+}
