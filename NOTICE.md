@@ -1,4 +1,4 @@
-# vilmate/module-zero-banner — licensing
+# fixstacks/module-zero-banner — licensing
 
 Copyright © 2026 Roman Pasichnyk.
 

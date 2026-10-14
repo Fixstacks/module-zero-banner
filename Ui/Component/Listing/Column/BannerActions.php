@@ -8,7 +8,6 @@ declare(strict_types=1);
 
 namespace Zero\Banner\Ui\Component\Listing\Column;
 
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\Escaper;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
@@ -24,18 +23,15 @@ class BannerActions extends Column
     public const URL_PATH_EDIT = 'zero_banner/banner/edit';
     public const URL_PATH_DELETE = 'zero_banner/banner/delete';
 
-    private readonly Escaper $escaper;
-
     public function __construct(
         ContextInterface $context,
         UiComponentFactory $uiComponentFactory,
         private readonly UrlInterface $urlBuilder,
+        private readonly Escaper $escaper,
         array $components = [],
-        array $data = [],
-        ?Escaper $escaper = null
+        array $data = []
     ) {
         parent::__construct($context, $uiComponentFactory, $components, $data);
-        $this->escaper = $escaper ?: ObjectManager::getInstance()->get(Escaper::class);
     }
 
     /**

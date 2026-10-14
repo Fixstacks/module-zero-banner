@@ -3,25 +3,15 @@
  * Copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * A banner: a CSS scroll-snap track (native swipe, no JS needed to browse)
- * with optional prev/next, dots and autoplay wired up by the small script at
- * the end.
+ * A banner: a CSS scroll-snap track (native swipe); arrows, dots and autoplay
+ * come from web/js/banner.js.
  *
- * - Images are <picture>s cropped to the banner's aspect ratio on the server,
- *   WebP first when available, with an optional mobile source below 48rem.
- *   width/height plus CSS aspect-ratio reserve the space: no layout shift.
- * - "Above the fold" banners load the first image eagerly with
- *   fetchpriority=high (it's usually the page's LCP element); everything else
- *   is lazy.
- * - Per slide: "fill the frame" (cropped on the server around the focal
- *   point; object-position repeats it for when min-height makes the box
- *   taller) or "show the whole image" (object-contain on a neutral ground);
- *   text left/center/right, over a gradient that darkens that side.
+ * - <picture>s cropped on the server, WebP first, an optional mobile source;
+ *   width/height + aspect-ratio reserve the space (no layout shift).
+ * - Above the fold: the first image is eager with fetchpriority=high (LCP).
  * - Full width cancels .page-main's padding-inline (1rem, 2rem from md).
- * - Arrows: desktop only (phones swipe; on a narrow slide they'd cover the
- *   text), shown on hover and keyboard focus. They center via `.zero-hero-nav`
- *   (transform), not Tailwind's -translate-y-1/2, which DaisyUI's .btn:active
- *   overrides.
+ * - Arrows: desktop only, on hover/focus; centred by `.zero-hero-nav`, since
+ *   DaisyUI's .btn:active overrides Tailwind's -translate-y-1/2.
  *
  * @var \Magento\Framework\Escaper $escaper
  * @var \Zero\Banner\Block\Widget\Banner $block

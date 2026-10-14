@@ -162,10 +162,8 @@ class Save extends Action implements HttpPostActionInterface
 
     /**
      * The uploader posts [{name, url, ...}] or nothing (removed). A fresh upload
-     * (url in the tmp dir) is moved into place; an image picked from the media
-     * gallery is used where it is; anything else is the slide's current image
-     * posted back and is kept as stored — whatever its path (older slides point
-     * at /catalog/product/... photos).
+     * is moved into place, a gallery pick is used as is, anything else is the
+     * current image posted back and kept (older slides use /catalog/product/...).
      *
      * @param mixed $value
      * @param Slide $slide

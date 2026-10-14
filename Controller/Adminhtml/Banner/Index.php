@@ -10,9 +10,10 @@ namespace Zero\Banner\Controller\Adminhtml\Banner;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\Model\View\Result\Page;
+use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\View\Result\PageFactory;
 
-class Index extends Action
+class Index extends Action implements HttpGetActionInterface
 {
     public const ADMIN_RESOURCE = 'Zero_Banner::banner';
 

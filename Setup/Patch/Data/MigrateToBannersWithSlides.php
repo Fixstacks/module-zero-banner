@@ -18,14 +18,10 @@ use Psr\Log\LoggerInterface;
 use Zero\Banner\Block\Widget\Banner as BannerWidget;
 
 /**
- * Banners used to be single slides (zero_banner), all rendered at the top of
- * the homepage by the module's own layout. Now a banner has slides and is
- * placed with a widget, so the old rows become one "Homepage hero" banner and a
- * widget instance puts it where the carousel was (homepage, content.top, Zero
- * theme).
- *
- * Old titles carried hand-written numbering ("01 / 03 New Collection"): it's
- * stripped into the eyebrow, and the banner's "show slide numbers" generates it.
+ * Banners used to be single slides (zero_banner) placed by the module's
+ * layout. Now the old rows become one "Homepage hero" banner with slides, and
+ * a widget puts it where the carousel was. Hand-written numbering in old
+ * titles ("01 / 03 ...") moves into the eyebrow.
  */
 class MigrateToBannersWithSlides implements DataPatchInterface
 {

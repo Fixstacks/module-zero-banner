@@ -1,92 +1,114 @@
-# Zero Banner — как пользоваться
+# Zero Banner: how to use it
 
-Баннер — это карусель из слайдов. Сначала баннер создаётся, потом
-ставится на нужные страницы виджетом.
+A banner is a carousel of slides. Create the banner first, then place it on
+pages with a widget.
 
 ## Install
 
 Requires Magento Open Source 2.4.7–2.4.9 and PHP 8.2–8.4.
 
 ```bash
-composer require vilmate/module-zero-banner
+composer require fixstacks/module-zero-banner
 bin/magento setup:upgrade
 bin/magento setup:di:compile           # production mode
 bin/magento setup:static-content:deploy # production mode
 bin/magento cache:flush
 ```
 
-## 1. Создать баннер
+Part of [`fixstacks/zero`](https://fixstacks.com/zero), which installs the Zero theme and every Zero module at once.
+
+## 1. Create a banner
 
 **Content → Banners → Add New Banner**
 
-- **Name** — название (видно в списке и в выборе виджета).
-- **Identifier** — код латиницей, например `summer-sale`.
-- **Store View** — в каких магазинах показывать.
+- **Name**: shown in the grid and in the widget's banner picker.
+- **Identifier**: a Latin code, e.g. `summer-sale`.
+- **Store View**: where it is shown.
 
-**Display** — как выглядит баннер:
+**Display**, how the banner looks:
 
-| Настройка | Что делает |
+| Setting | What it does |
 |---|---|
-| Aspect Ratio | Формат кадра на компьютере: 5:2 — широкий герой, 3:1 — узкая полоса, 16:9, 1:1 и т.д. |
-| Aspect Ratio on Phones | Формат на телефоне (до 768px). Обычно лучше выше, например 4:5. «Same as desktop» — как на компьютере. |
-| Width | Content width — по ширине контента; Full width — от края до края. |
-| Shown at the Top of the Page | Включайте, если баннер — первое, что видно на странице (герой): первая картинка грузится сразу. Для баннеров ниже — выключено, картинки грузятся по мере прокрутки. |
-| Show Arrows / Dots / Slide Numbers | Стрелки (на компьютере), точки под баннером, нумерация «01 / 03» перед надписью. |
-| Autoplay, Seconds per Slide | Автопрокрутка. По умолчанию выключена; у посетителя есть кнопка паузы. |
+| Aspect Ratio | The frame on desktop: 5:2 a wide hero, 3:1 a narrow strip, 16:9, 1:1 and so on. |
+| Aspect Ratio on Phones | The frame on phones (up to 768px). Usually taller, e.g. 4:5. "Same as desktop" keeps the desktop one. |
+| Width | Content width, or Full width (edge to edge). |
+| Shown at the Top of the Page | On for a banner that is the first thing on the page (a hero): its first image loads right away. Off for banners further down: images load as the visitor scrolls. |
+| Show Arrows / Dots / Slide Numbers | Arrows (desktop), dots under the banner, "01 / 03" before the heading. |
+| Autoplay, Seconds per Slide | Off by default; visitors get a pause button. |
 
-## 2. Добавить слайды
+## 2. Add slides
 
-В блоке **Slides** → **Add Slide**. Порядок меняется перетаскиванием за
-значок ⋮⋮ слева, удаление — корзина справа.
+**Slides** → **Add Slide**. Drag the ⋮⋮ handle to reorder; the bin on the
+right deletes a slide.
 
-- **Image** — JPG, PNG или GIF, лучше от 2000px по ширине. Можно загрузить
-  или выбрать из медиатеки (Select from Gallery). WebP сайт сделает сам.
-- **Mobile Image** — необязательно: отдельная картинка для телефона.
+- **Image**: JPG, PNG or GIF, 2000px wide or more. Upload it or pick it from
+  the media gallery (Select from Gallery). WebP copies are made automatically.
+- **Mobile Image**: optional, a separate image for phones.
 - **Image Fit**
-  - *Fill the frame* — картинка заполняет весь кадр, лишнее обрезается
-    под формат баннера (обычный вариант для фото).
-  - *Show the whole image* — картинка видна целиком, вокруг может быть пустое
-    поле (для картинок с текстом, логотипов, коллажей).
-- **Focal Point** — какую часть фото сохранить при обрезке: Top — если на
-  фото человек и обрезается голова, Left/Right — если главное сбоку.
-- **Text Position** — где текст: слева, по центру или справа; с этой стороны
-  картинка затемняется, чтобы текст читался.
-- **Image Alt Text** — короткое описание картинки (для незрячих и поиска).
-- **Eyebrow** — маленькая строка над заголовком; **Heading** — заголовок;
-  **Text** — пара строк текста.
-- **Button Text** + **Link URL** — кнопка и куда ведёт (`/women.html` или
-  полный адрес). Без текста кнопки кликабелен весь слайд; без ссылки —
-  слайд не кликабелен.
-- **Show From / Show To** — даты показа (включительно). Пусто — всегда.
-- **Enabled** — временно скрыть слайд, не удаляя.
+  - *Fill the frame*: the image fills the frame and is cropped to the
+    banner's format (the usual choice for photos).
+  - *Show the whole image*: the whole image shows, possibly with empty space
+    around it (for images with text, logos, collages).
+- **Focal Point**: the part kept when cropping: Top when a person's head gets
+  cut off, Left/Right when the subject is at the side.
+- **Text Position**: left, centre or right; the image is darkened on that
+  side so the text stays readable.
+- **Image Alt Text**: a short description (screen readers, search engines).
+- **Eyebrow**: a small line above the heading; **Heading**; **Text**: a line
+  or two.
+- **Button Text** + **Link URL**: the button and where it goes (`/women.html`
+  or a full URL). Without button text the whole slide is the link; without a
+  link the slide isn't clickable.
+- **Show From / Show To**: the dates it shows (inclusive). Empty: always.
+- **Enabled**: hides a slide without deleting it.
 
-**Save Banner**. Все размеры картинок готовятся при сохранении.
+**Save Banner**. All image sizes are made on save.
 
-## 3. Поставить баннер на страницу
+## 3. Put the banner on a page
 
 **Content → Widgets → Add Widget**
 
-1. Type: **Zero Banner**, Design Theme: **Zero**, → Continue.
-2. **Storefront Properties**: Widget Title (для себя), Assign to Store Views.
-3. **Layout Updates → Add Layout Update**: где показывать (главная — Specified
-   Page → CMS Home Page; категории — Anchor Categories; товары — All Product
-   Types и т.д.) и **Container** — место на странице (например, Main Content
-   Top — над содержимым).
-4. **Widget Options** → Banner: выбрать баннер. **Save**.
+1. Type: **Zero Banner**, Design Theme: **Zero** → Continue.
+2. **Storefront Properties**: Widget Title (for yourself), Assign to Store Views.
+3. **Layout Updates → Add Layout Update**: where it shows (home page:
+   Specified Page → CMS Home Page; categories: Anchor Categories; products:
+   All Product Types, and so on) and **Container**, the place on the page
+   (e.g. Main Content Top, above the content).
+4. **Widget Options** → Banner: pick the banner. **Save**.
 
-Или вставить в CMS-страницу/блок:
+Or insert it into a CMS page or block:
 `{{widget type="Zero\Banner\Block\Widget\Banner" identifier="summer-sale"}}`
 
-Баннер «Homepage hero» на главной уже стоит виджетом «Homepage hero».
+The "Homepage hero" banner is already on the home page through the "Homepage
+hero" widget.
 
-## 4. Когда изменения видны на сайте
+## 4. When changes show on the site
 
-Страницы сайта кэшируются. Новые или изменённые слайды появляются, когда
-кэш страницы обновится (до суток); если нужно сразу — попросите
-разработчика сбросить кэш (Varnish). Слайды с датами показа обновляются
-сами — раз в час.
+Pages are cached. New or changed slides show once the page cache refreshes
+(up to a day); to see them at once, ask a developer to flush the cache
+(Varnish). Slides with dates update by themselves, once an hour.
 
-## Общие настройки
+## General settings
 
-**Stores → Configuration → Zero → Banners**: качество картинок (80 —
-хороший баланс) и WebP (включено). Применяются ко всем баннерам.
+**Stores → Configuration → Zero → Banners**: image quality (80 is a good
+balance) and WebP (on). They apply to all banners.
+
+## Disabling or removing
+
+Its data lives in its own tables (`zero_banner_entity`, `zero_banner_entity_store`, `zero_banner_slide`, `zero_banner`, `zero_banner_store`). With the module's code still in
+place, `bin/magento module:disable Zero_Banner` followed by `setup:upgrade`
+**drops those tables** (Magento's declarative schema), and enabling the module
+again brings them back empty. To keep the data, switch the feature off in
+Stores > Configuration where it has a setting, or back up first:
+`bin/magento setup:upgrade --safe-mode=1` dumps the data before anything is
+dropped (`--data-restore=1` puts it back). Deleting the module's code instead
+leaves the tables in place.
+
+## License
+
+OSL-3.0 or AFL-3.0, your choice: see `NOTICE.md`.
+
+---
+
+Zero is made by [Fixstacks](https://fixstacks.com/zero) in partnership with [Vilmate](https://vilmate.com).
+Documentation: https://fixstacks.com/zero/docs. Demo store: https://zero.fixstacks.com.

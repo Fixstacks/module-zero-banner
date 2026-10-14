@@ -23,13 +23,21 @@
         var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         // Right-to-left pages scroll toward negative scrollLeft (slide 2 is at -width).
         var dir = getComputedStyle(track).direction === 'rtl' ? -1 : 1;
+        // The slide width is read once and on resize, not on every scroll frame:
+        // reading clientWidth after the dots changed forces a layout each time.
+        var width = track.clientWidth;
+        if (window.ResizeObserver) {
+            new ResizeObserver(function () { width = track.clientWidth; }).observe(track);
+        } else {
+            window.addEventListener('resize', function () { width = track.clientWidth; });
+        }
 
         function current() {
-            return Math.round(Math.abs(track.scrollLeft) / track.clientWidth);
+            return width ? Math.round(Math.abs(track.scrollLeft) / width) : 0;
         }
         function go(index) {
             var i = (index + count) % count;
-            track.scrollTo({ left: dir * i * track.clientWidth, behavior: reduceMotion ? 'auto' : 'smooth' });
+            track.scrollTo({ left: dir * i * width, behavior: reduceMotion ? 'auto' : 'smooth' });
         }
 
         var prev = root.querySelector('[data-prev]');
@@ -41,10 +49,15 @@
         });
 
         var frame = 0;
+        var active = current();
         track.addEventListener('scroll', function () {
             cancelAnimationFrame(frame);
             frame = requestAnimationFrame(function () {
                 var c = current();
+                if (c === active) {
+                    return;
+                }
+                active = c;
                 dots.forEach(function (dot, i) { dot.setAttribute('aria-current', i === c ? 'true' : 'false'); });
             });
         }, { passive: true });

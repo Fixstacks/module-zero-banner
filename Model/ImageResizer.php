@@ -17,14 +17,10 @@ use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Responsive variants of a banner image: cropped to the banner's aspect ratio
- * on the server around the slide's focal point (so no hidden pixels are
- * downloaded) — or, for "show the whole image", not cropped — scaled to each
- * srcset width, plus a WebP copy when enabled. Stored under
- * media/zero_banner/cache/{16x9 | 16x9-top | original}/{width}q{quality}/{source path}.
- *
- * Works for any media-relative path: uploads (/zero_banner/...) as well as the
- * catalog photos older banners point at (/catalog/product/...).
+ * Responsive variants of a banner image: cropped on the server to the
+ * banner's ratio around the focal point (or not, for "show the whole image"),
+ * scaled to each srcset width, plus WebP. Stored under
+ * media/zero_banner/cache/{ratio[-position]|original}/{width}q{quality}/{path}.
  */
 class ImageResizer
 {
@@ -40,9 +36,8 @@ class ImageResizer
     }
 
     /**
-     * Variants for the given widths, smallest first. Widths wider than the
-     * cropped source are dropped (never upscaled); the source's own width is
-     * then the largest variant. Null when the source file is missing.
+     * Variants for the given widths, smallest first, never upscaled. Null when
+     * the source file is missing.
      *
      * @param string $imagePath Media-relative path as stored on the slide.
      * @param int[]|null $ratio [width, height] to crop to, e.g. [16, 9]; null keeps the whole image.
@@ -151,16 +146,13 @@ class ImageResizer
     }
 
     /**
-     * Crop of a $width×$height image to $ratio around the focal point, as the
-     * adapter's crop() arguments (pixels to cut from top, left, right, bottom)
-     * plus the resulting size. Only the axis being cut uses the position:
-     * "top" on a too-wide image still crops the sides evenly.
+     * The crop() arguments (top, left, right, bottom) and resulting size for
+     * $ratio around the focal point; only the cut axis uses the position.
      *
      * @param int $width
      * @param int $height
      * @param int[] $ratio
-     * @param string $position center, top, bottom, left, right, or a percentage
-     *     ("61"): where the kept part sits along the cut axis, as in CSS object-position.
+     * @param string $position center, top, bottom, left, right, or a percentage ("61"), as in CSS object-position.
      * @return array{0: int[], 1: int, 2: int}
      */
     public function cropBox(int $width, int $height, array $ratio, string $position = 'center'): array
