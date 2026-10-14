@@ -8,32 +8,23 @@ declare(strict_types=1);
 
 namespace Zero\Banner\Setup\Patch\Data;
 
-use Magento\Framework\App\Area;
-use Magento\Framework\App\State;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
-use Magento\Theme\Model\ResourceModel\Theme\CollectionFactory as ThemeCollectionFactory;
-use Magento\Widget\Model\Widget\InstanceFactory;
-use Psr\Log\LoggerInterface;
-use Zero\Banner\Block\Widget\Banner as BannerWidget;
+use Zero\Banner\Setup\HomepageWidget;
 
 /**
  * Banners used to be single slides (zero_banner) placed by the module's
  * layout. Now the old rows become one "Homepage hero" banner with slides, and
- * a widget puts it where the carousel was. Hand-written numbering in old
- * titles ("01 / 03 ...") moves into the eyebrow.
+ * a widget puts it where the carousel was (Setup\HomepageWidget).
+ * Hand-written numbering in old titles ("01 / 03 ...") moves into the eyebrow.
  */
 class MigrateToBannersWithSlides implements DataPatchInterface
 {
     public const IDENTIFIER = 'homepage-hero';
-    private const THEME = 'Zero/default';
 
     public function __construct(
         private readonly ModuleDataSetupInterface $moduleDataSetup,
-        private readonly InstanceFactory $widgetInstanceFactory,
-        private readonly ThemeCollectionFactory $themeCollectionFactory,
-        private readonly State $appState,
-        private readonly LoggerInterface $logger
+        private readonly HomepageWidget $homepageWidget
     ) {
     }
 
@@ -95,49 +86,7 @@ class MigrateToBannersWithSlides implements DataPatchInterface
         }
         $connection->insertMultiple($this->moduleDataSetup->getTable('zero_banner_slide'), $rows);
 
-        $this->placeOnHomepage($bannerId);
-    }
-
-    /**
-     * Widget instance: Zero Banner → homepage, "Main Content Top".
-     *
-     * @param int $bannerId
-     * @return void
-     */
-    private function placeOnHomepage(int $bannerId): void
-    {
-        $theme = $this->themeCollectionFactory->create()
-            ->addFieldToFilter('area', Area::AREA_FRONTEND)
-            ->addFieldToFilter('theme_path', self::THEME)
-            ->getFirstItem();
-        if (!$theme->getId()) {
-            $this->logger->warning('Zero_Banner: theme ' . self::THEME . ' not found, homepage hero widget not created');
-            return;
-        }
-
-        // Frontend: saving resolves the template against the (frontend) theme, which
-        // fails under the adminhtml area ("Required parameter 'theme_dir'...").
-        $this->appState->emulateAreaCode(Area::AREA_FRONTEND, function () use ($bannerId, $theme) {
-            $instance = $this->widgetInstanceFactory->create();
-            $instance->setType(BannerWidget::class);
-            $instance->setCode('zero_banner');
-            $instance->setThemeId((int) $theme->getId());
-            $instance->setTitle('Homepage hero');
-            $instance->setStoreIds([0]);
-            $instance->setSortOrder(0);
-            $instance->setWidgetParameters(['banner_id' => (string) $bannerId]);
-            $instance->setPageGroups([[
-                'page_group' => 'pages',
-                'pages' => [
-                    'page_id' => 0,
-                    'layout_handle' => 'cms_index_index',
-                    'block' => 'content.top',
-                    'for' => 'all',
-                    'template' => 'Zero_Banner::widget/banner.phtml',
-                ],
-            ]]);
-            $instance->save();
-        });
+        $this->homepageWidget->place($bannerId);
     }
 
     /**
