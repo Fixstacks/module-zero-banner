@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
  * Zero banner carousels ([data-zero-banner]): arrows, dots, and autoplay
- * every data-autoplay seconds (0 = off). Each banner is set up once, however
+ * every data-autoplay seconds (0 = off), from the visitor's first touch,
+ * scroll, pointer move or key: a page nobody has touched yet stays still, so
+ * the first slide (the page's largest image) isn't swapped away while it is
+ * still being looked at, and a speed measurement sees a settled screen.
+ * Each banner is set up once, however
  * many banners load this file (no inline script: strict CSP).
  */
 (function () {
@@ -68,35 +72,77 @@
             return;
         }
         // WCAG 2.2.2: moving content can be paused (button), and stops while
-        // hovered/focused or when the visitor asked for reduced motion.
-        var paused = reduceMotion, held = false, timer = 0;
+        // the mouse is over it or keyboard focus is inside, or when the
+        // visitor asked for reduced motion. Autoplay is armed by the first
+        // interaction with the page (onFirstInteraction) or by the button;
+        // until then the button shows Play, as nothing moves yet.
+        var paused = reduceMotion, armed = false, held = false, timer = 0;
         function render() {
-            pauseButton.setAttribute('aria-label', pauseButton.dataset[paused ? 'labelPlay' : 'labelPause']);
-            pauseButton.querySelector('[data-icon-pause]').toggleAttribute('hidden', paused);
-            pauseButton.querySelector('[data-icon-play]').toggleAttribute('hidden', !paused);
+            var showPlay = paused || !armed;
+            pauseButton.setAttribute('aria-label', pauseButton.dataset[showPlay ? 'labelPlay' : 'labelPause']);
+            pauseButton.querySelector('[data-icon-pause]').toggleAttribute('hidden', showPlay);
+            pauseButton.querySelector('[data-icon-play]').toggleAttribute('hidden', !showPlay);
         }
         function schedule() {
             clearTimeout(timer);
-            if (!paused) {
+            if (armed && !paused) {
                 timer = setTimeout(function () {
                     if (!held && !document.hidden) { go(current() + 1); }
                     schedule();
                 }, interval);
             }
         }
-        pauseButton.addEventListener('click', function () {
-            paused = !paused;
+        function arm() {
+            armed = true;
             render();
             schedule();
+        }
+        pauseButton.addEventListener('click', function () {
+            if (armed) {
+                paused = !paused;
+            } else {
+                paused = false;
+            }
+            arm();
         });
-        root.addEventListener('mouseenter', function () { held = true; });
-        root.addEventListener('mouseleave', function () { held = false; });
-        root.addEventListener('focusin', function () { held = true; });
+        // A mouse over the banner holds it; a finger doesn't (its emulated mouseenter never leaves).
+        root.addEventListener('pointerenter', function (event) { if (event.pointerType === 'mouse') { held = true; } });
+        root.addEventListener('pointerleave', function (event) { if (event.pointerType === 'mouse') { held = false; } });
+        // Keyboard focus inside holds it; the focus a tap leaves on the button doesn't.
+        root.addEventListener('focusin', function (event) { held = event.target.matches(':focus-visible'); });
         root.addEventListener('focusout', function () { held = false; });
         track.addEventListener('pointerdown', function () { paused = true; render(); schedule(); });
         render();
-        schedule();
+        onFirstInteraction(arm, pauseButton);
     }
+
+    /**
+     * Runs fn once, on the visitor's first touch, scroll, pointer move or key;
+     * not for an event on `except` (a banner's own button handles its click).
+     */
+    var interacted = false, waiting = [];
+    function onFirstInteraction(fn, except) {
+        if (interacted) {
+            fn();
+            return;
+        }
+        waiting.push({ fn: fn, except: except });
+    }
+    ['pointermove', 'pointerdown', 'touchstart', 'scroll', 'keydown', 'wheel'].forEach(function (type) {
+        window.addEventListener(type, function handler(event) {
+            if (interacted) {
+                return;
+            }
+            var target = event.target && event.target.closest ? event.target : null;
+            var rest = waiting.filter(function (w) { return w.except && target && w.except.contains(target); });
+            interacted = true;
+            waiting.filter(function (w) { return rest.indexOf(w) === -1; }).forEach(function (w) { w.fn(); });
+            waiting = rest;
+            if (rest.length) {
+                interacted = false;
+            }
+        }, { passive: true });
+    });
 
     document.querySelectorAll('[data-zero-banner]').forEach(initBanner);
 })();
