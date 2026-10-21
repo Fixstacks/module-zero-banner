@@ -1,4 +1,4 @@
-# fixstacks/module-zero-banner — licensing
+# zerofront/module-zero-banner — licensing
 
 Copyright © 2026 Roman Pasichnyk.
 

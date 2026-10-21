@@ -88,7 +88,7 @@ class CreateHomepageHero implements DataPatchInterface
                 'image' => '/' . self::MEDIA_DIR . '/' . self::IMAGES[0],
                 'mobile_image' => '/' . self::MEDIA_DIR . '/' . self::IMAGES[1],
                 'alt' => 'Fixstacks',
-                'link_url' => 'https://fixstacks.com/zero',
+                'link_url' => 'https://zerofront.dev',
             ],
         ]);
 
